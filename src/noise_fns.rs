@@ -1,7 +1,7 @@
 pub use self::{
     cache::*, combiners::*, generators::*, modifiers::*, selectors::*, transformers::*,
 };
-use alloc::boxed::Box;
+use alloc::{boxed::Box, rc::Rc};
 
 mod cache;
 mod combiners;
@@ -38,6 +38,16 @@ where
 }
 
 impl<T, M, const DIM: usize> NoiseFn<T, DIM> for Box<M>
+where
+    M: NoiseFn<T, DIM> + ?Sized,
+{
+    #[inline]
+    fn get(&self, point: [T; DIM]) -> f64 {
+        M::get(self, point)
+    }
+}
+
+impl<T, M, const DIM: usize> NoiseFn<T, DIM> for Rc<M>
 where
     M: NoiseFn<T, DIM> + ?Sized,
 {
